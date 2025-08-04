@@ -5,5 +5,6 @@ class EmailMetadata(BaseModel):
     To: str
     Subject: str
     Date: str
+    Body: str
     phishing_flag: bool
 
