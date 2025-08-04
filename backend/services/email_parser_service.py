@@ -12,7 +12,7 @@ class EmailParserService:
 
     def connect(self):
         try:
-            self.mail = imaplib.IMAP4_SSL(self.imap_server)
+            self.mail = imaplib.IMAP4(self.imap_server)
             self.mail.login(self.email_user, self.email_pass)
             print("[+] Connected to IMAP server")
 
