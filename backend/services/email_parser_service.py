@@ -1,5 +1,6 @@
 import imaplib
 import email
+from email.message import Message
 from email.header import decode_header
 from typing import List, Dict
 
@@ -31,10 +32,13 @@ class EmailParserService:
             for response_part in msg_data:
                 if isinstance(response_part, tuple):
                     msg = email.message_from_bytes(response_part[1])
-                    emails.append(self.parse_email_metadata(msg))
+                    emails.append({
+                        **self.parse_email_metadata(msg),
+                        "Body": self.get_email_body(msg)
+                    })
         return emails
     
-    def parse_email_metadata(self, msg) -> Dict:
+    def parse_email_metadata(self, msg: Message) -> Dict:
         def decode_field(field):
             if field:
                 decoded, charset = decode_header(field)[0]
@@ -53,3 +57,22 @@ class EmailParserService:
         }
 
         return email_data
+    
+    def get_email_body(self, msg: Message):
+        body = ""
+
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                content_disposition = str(part.get("Content-Disposition"))
+
+                if content_type == "text/plain" and "attachment" not in content_disposition:
+                    try:
+                        body += part.get_payload(decode=True).decode()
+                    except:
+                        pass
+        else:
+            body = msg.get_payload(decode=True).decode()
+        
+        print("Body: ", body)
+        return body
