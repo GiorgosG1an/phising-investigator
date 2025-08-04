@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 
 from backend.models.email_metadata import EmailMetadata
 from backend.services.email_parser_service import EmailParserService
+from backend.services.detection_service import DetectionService
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ def fetch_emails(limit: int = Query(5, gt=0, le=20)):
 
     emails = []
     for email_data in raw_emails:
-        email_data["phishing_flag"] = False # Placeholder for now, logic implementation later
+        email_data["phishing_flag"] = DetectionService.flag_email(email_data)
         emails.append(EmailMetadata(**email_data))
 
     return emails
